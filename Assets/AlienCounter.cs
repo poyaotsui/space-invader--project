@@ -16,9 +16,4 @@ public class AlienCounter : MonoBehaviour
     {
         uiText.text = "Remaining Aliens: " + remaining.ToString("#,0");
     }
-
-    public void ShowGameOver(int remaining)
-    {
-        uiText.text = "Game Over! Remaining Aliens: " + remaining.ToString("#,0");
-    }
 }

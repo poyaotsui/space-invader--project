@@ -11,6 +11,8 @@ public class AlienFleet : MonoBehaviour
 
     public Spaceship spaceship;
 
+    public GameScreens screens;
+
     [Header("Dynamic")]
     public bool gameLost = false;
 
@@ -48,9 +50,10 @@ public class AlienFleet : MonoBehaviour
     public void AlienDestroyed(Alien alien)
     {
         aliens.Remove(alien);
-        if (!gameLost)
+        alienCounter.SetRemaining(aliens.Count);
+        if (aliens.Count == 0 && !gameLost)
         {
-            alienCounter.SetRemaining(aliens.Count);
+            screens.EndGame(true, "You destroyed every alien.");
         }
     }
 
@@ -110,7 +113,7 @@ public class AlienFleet : MonoBehaviour
         //(darts only travel upwards)
         if (spaceship == null)
         {
-            LoseGame("the spaceship was destroyed");
+            LoseGame("Your spaceship was destroyed.");
             return;
         }
         float firingLine = spaceship.transform.position.y;
@@ -118,7 +121,7 @@ public class AlienFleet : MonoBehaviour
         {
             if (alien.body.bounds.max.y < firingLine)
             {
-                LoseGame("an alien got below the spaceship");
+                LoseGame("An alien got past your spaceship.");
                 return;
             }
         }
@@ -127,8 +130,7 @@ public class AlienFleet : MonoBehaviour
     void LoseGame(string reason)
     {
         gameLost = true;
-        alienCounter.ShowGameOver(aliens.Count);
-        Debug.Log("Game over: " + reason);
+        screens.EndGame(false, reason);
     }
 
     void startSidewaysMotion()
