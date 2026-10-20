@@ -11,8 +11,10 @@ public class GameScreens : MonoBehaviour
     public TextMeshProUGUI endTitle;
     public TextMeshProUGUI endDetail;
     public Spaceship spaceship;
+    // offers a buff before every run
+    public BuffPicker buffPicker;
 
-    enum State { Waiting, Playing, Over }
+    enum State { Waiting, ChoosingBuff, Playing, Over }
     State state;
 
     // set when the player restarts, so the reloaded scene skips the start screen
@@ -21,15 +23,16 @@ public class GameScreens : MonoBehaviour
     void Start()
     {
         endScreen.SetActive(false);
+        Freeze();
         if (restarting)
         {
             restarting = false;
-            BeginGame();
+            startScreen.SetActive(false);
+            ChooseBuff();
             return;
         }
         state = State.Waiting;
         startScreen.SetActive(true);
-        Freeze();
     }
 
     void Update()
@@ -40,13 +43,21 @@ public class GameScreens : MonoBehaviour
         }
         if (state == State.Waiting)
         {
-            BeginGame();
+            startScreen.SetActive(false);
+            ChooseBuff();
         }
         else if (state == State.Over)
         {
             restarting = true;
             SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
         }
+    }
+
+    // the game stays frozen while the buff cards are up, and starts once one is picked
+    void ChooseBuff()
+    {
+        state = State.ChoosingBuff;
+        buffPicker.Show(BeginGame);
     }
 
     void BeginGame()

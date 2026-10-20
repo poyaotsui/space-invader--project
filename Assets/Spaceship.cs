@@ -1,3 +1,4 @@
+using System.Collections;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -9,10 +10,79 @@ public class Spaceship : MonoBehaviour
     public static float shotCooldown = .05f;
     public float lastShot = 0;
     public float speed = 10f;
+    // takeout boxes fired per press (buffs can raise it), and the gap between them
+    public int shotsPerPress = 1;
+    public float shotSpacing = 1.5f;
+
+    // how many hits you can take; the ship is destroyed on the last one
+    public int maxHealth = 3;
+    // after a hit you can't be hit again for this long, so one burst of bullets can't take all your health
+    public float invincibleTime = 1f;
+    public HealthBar healthBar;
+
+    // the character shouts while the shoot key is held down
+    public SpriteRenderer characterRenderer;
+    public Sprite normalSprite;
+    public Sprite shootingSprite;
+
+    [Header("Dynamic")]
+    public int health;
+    bool invincible = false;
 
     //how far the ship's mesh sticks out to the left and right of its position
     float leftExtent;
     float rightExtent;
+
+    // Awake still runs while the ship is disabled behind the start screen, so the bar is filled from the beginning
+    void Awake()
+    {
+        health = maxHealth;
+        healthBar.Show(health, maxHealth);
+    }
+
+    public void AddMaxHealth(int amount)
+    {
+        maxHealth += amount;
+        health += amount;
+        healthBar.Show(health, maxHealth);
+    }
+
+    public void TakeHit()
+    {
+        if (invincible || health <= 0)
+        {
+            return;
+        }
+        health--;
+        healthBar.Show(health, maxHealth);
+        if (health <= 0)
+        {
+            Destroy(gameObject);
+            return;
+        }
+        StartCoroutine(Invincibility());
+    }
+
+    IEnumerator Invincibility()
+    {
+        //blink while invincible
+        invincible = true;
+        Renderer[] renderers = GetComponentsInChildren<Renderer>();
+        float blinkTime = .1f;
+        for (float t = 0; t < invincibleTime; t += blinkTime)
+        {
+            foreach (Renderer r in renderers)
+            {
+                r.enabled = !r.enabled;
+            }
+            yield return new WaitForSeconds(blinkTime);
+        }
+        foreach (Renderer r in renderers)
+        {
+            r.enabled = true;
+        }
+        invincible = false;
+    }
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
@@ -42,13 +112,24 @@ public class Spaceship : MonoBehaviour
             transform.position = position;
         }
         keepOnScreen();
+        characterRenderer.sprite = Keyboard.current.spaceKey.isPressed ? shootingSprite : normalSprite;
         if (Keyboard.current.spaceKey.wasPressedThisFrame && Time.time - lastShot > shotCooldown)
         {
+            Fire();
+        }
+    }
+
+    void Fire()
+    {
+        // several boxes go out side by side, centred on the ship
+        for (int i = 0; i < shotsPerPress; i++)
+        {
             Vector3 position = transform.position;
+            position.x += (i - (shotsPerPress - 1) / 2f) * shotSpacing;
             GameObject bullet = Instantiate<GameObject>(dartPrefab);
             bullet.transform.position = position;
-            lastShot = Time.time;
         }
+        lastShot = Time.time;
     }
 
     void keepOnScreen()

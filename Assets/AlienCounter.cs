@@ -12,8 +12,8 @@ public class AlienCounter : MonoBehaviour
     }
 
     // the text is only rebuilt when the count changes, not every frame
-    public void SetRemaining(int remaining)
+    public void Show(int wave, int score, int remaining)
     {
-        uiText.text = "Remaining Aliens: " + remaining.ToString("#,0");
+        uiText.text = "Wave " + wave + "     Score: " + score.ToString("#,0") + "     Burgers Left: " + remaining.ToString("#,0");
     }
 }
