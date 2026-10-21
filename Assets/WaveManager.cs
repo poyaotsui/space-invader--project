@@ -15,6 +15,10 @@ public class WaveSettings
     // seconds between swoop dives with the full fleet and with one burger left
     public float swoopIntervalStart = 4f;
     public float swoopIntervalEnd = 1.2f;
+    // true: every burger wanders on its own instead of moving as one formation
+    public bool independentMovement = false;
+    // whether a Giant Burger comes after the burgers; without one, the wave ends with the last burger
+    public bool hasBoss = true;
     public int bossHealth = 20;
     // Giant Burger bullets per volley (two more below half health), and seconds between
     // volleys at full health and when nearly beaten
@@ -47,14 +51,36 @@ public class WaveManager : MonoBehaviour
         fleet.SpawnWave(CurrentWave);
     }
 
-    // called when the current wave's Giant Burger is beaten
+    // called when the current wave is over: its Giant Burger is beaten, or its last burger caught
     public void WaveCleared()
     {
         if (waveIndex + 1 >= waves.Count)
         {
-            screens.EndGame(true, "You beat all " + waves.Count + " waves!   Score: " + fleet.score);
+            string won;
+            if (waves.Count > 1)
+            {
+                won = "You beat all " + waves.Count + " waves!";
+            }
+            else
+            {
+                won = CurrentWave.hasBoss ? "You beat the Giant Burger!" : "You caught every burger!";
+            }
+            screens.EndGame(true, won + "   Score: " + fleet.score);
             return;
         }
+        // after each Giant Burger you pick a new buff before the next wave
+        if (CurrentWave.hasBoss)
+        {
+            screens.ChooseBuffThen(AdvanceWave);
+        }
+        else
+        {
+            AdvanceWave();
+        }
+    }
+
+    void AdvanceWave()
+    {
         waveIndex++;
         StartCoroutine(NextWave());
     }

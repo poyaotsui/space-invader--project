@@ -17,6 +17,11 @@ public class GameScreens : MonoBehaviour
     enum State { Waiting, ChoosingBuff, Playing, Over }
     State state;
 
+    // the settings menu can open on the title screen and during play, but not over the buff cards or end screen
+    public bool CanPause { get { return state == State.Waiting || state == State.Playing; } }
+    // set while the settings menu is open, so Space can't start or restart the game behind it
+    [HideInInspector] public bool paused = false;
+
     // set when the player restarts, so the reloaded scene skips the start screen
     static bool restarting = false;
 
@@ -37,7 +42,7 @@ public class GameScreens : MonoBehaviour
 
     void Update()
     {
-        if (Keyboard.current == null || !Keyboard.current.spaceKey.wasPressedThisFrame)
+        if (paused || Keyboard.current == null || !Keyboard.current.spaceKey.wasPressedThisFrame)
         {
             return;
         }
@@ -60,13 +65,26 @@ public class GameScreens : MonoBehaviour
         buffPicker.Show(BeginGame);
     }
 
+    // a buff pick in the middle of a run (after a boss): the game freezes behind the cards,
+    // and next runs once one is picked and play resumes
+    public void ChooseBuffThen(System.Action next)
+    {
+        state = State.ChoosingBuff;
+        Freeze();
+        buffPicker.Show(() =>
+        {
+            BeginGame();
+            next();
+        });
+    }
+
     void BeginGame()
     {
         state = State.Playing;
         startScreen.SetActive(false);
         Time.timeScale = 1;
         spaceship.enabled = true;
-        // stops the space press that started the game from also firing a dart
+        // the first automatic throw comes one fire interval after the game starts
         spaceship.lastShot = Time.time;
     }
 

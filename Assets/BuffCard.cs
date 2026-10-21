@@ -12,6 +12,9 @@ public class BuffCard : MonoBehaviour, IPointerEnterHandler, IPointerClickHandle
     public TextMeshProUGUI title;
     public TextMeshProUGUI description;
     public TextMeshProUGUI number;
+    // the button under the card that swaps it for a different buff (once)
+    public Button rerollButton;
+    public TextMeshProUGUI rerollLabel;
     public Color frameColor = new Color(0.8f, 0.42f, 0.22f);
     public Color highlightColor = new Color(1f, 0.82f, 0.3f);
     public float highlightScale = 1.06f;
@@ -24,6 +27,13 @@ public class BuffCard : MonoBehaviour, IPointerEnterHandler, IPointerClickHandle
         picker = owner;
         index = cardIndex;
         number.text = (cardIndex + 1).ToString();
+        rerollButton.onClick.AddListener(() => picker.Reroll(index));
+    }
+
+    public void SetRerollAvailable(bool available)
+    {
+        rerollButton.interactable = available;
+        rerollLabel.text = available ? "Reroll" : "Rerolled";
     }
 
     public void Show(BuffInfo buff)

@@ -26,6 +26,12 @@ public class Alien : MonoBehaviour
     // swooping burgers fire more often
     [HideInInspector] public float fireRateMultiplier = 1;
 
+    // independent movement: this burger's own position, heading and pace, set by the fleet
+    [HideInInspector] public Vector3 roamPosition;
+    [HideInInspector] public Vector2 roamDirection;
+    [HideInInspector] public float roamPace = 1;
+    [HideInInspector] public float roamNextTurn;
+
     void Awake()
     {
         body = GetComponent<Collider>();
@@ -44,7 +50,9 @@ public class Alien : MonoBehaviour
 
     void OnCollisionEnter(Collision coll)
     {
-        if (hit)
+        //a box that has already caught a burger this physics step can't catch another
+        Dart dart = coll.gameObject.GetComponent<Dart>();
+        if (hit || (dart != null && dart.captured))
         {
             return;
         }
@@ -52,7 +60,6 @@ public class Alien : MonoBehaviour
 
         //a takeout box catches the burger and scores; ramming the ship costs it health;
         //anything else just destroys both
-        Dart dart = coll.gameObject.GetComponent<Dart>();
         Spaceship ship = coll.gameObject.GetComponent<Spaceship>();
         fleet.AlienDestroyed(this, dart != null);
         if (dart != null)

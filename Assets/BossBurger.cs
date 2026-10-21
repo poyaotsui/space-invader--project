@@ -106,7 +106,7 @@ public class BossBurger : MonoBehaviour
     void OnCollisionEnter(Collision coll)
     {
         Dart dart = coll.gameObject.GetComponent<Dart>();
-        if (dart == null)
+        if (dart == null || dart.captured)
         {
             return;
         }

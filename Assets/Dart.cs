@@ -8,7 +8,8 @@ public class Dart : MonoBehaviour
     // the takeout box lid, hinged at the back; open while flying, shut (no rotation) once it catches a burger
     public Transform lidHinge;
 
-    bool captured = false;
+    // once a box has caught something it can't catch anything else
+    public bool captured { get; private set; }
     int capturedSteps = 0;
 
     void FixedUpdate()

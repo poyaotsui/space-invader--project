@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-public enum BuffType { MoveSpeed, ExtraShot, ExtraHeart }
+public enum BuffType { MoveSpeed, ExtraShot, ExtraHeart, FireRate }
 
 [Serializable]
 public class BuffInfo
@@ -23,12 +23,18 @@ public class BuffPicker : MonoBehaviour
     public GameObject screen;
     public BuffCard[] cards;
     public Spaceship spaceship;
+    // lists picked buffs on the right side of the screen
+    public BuffTracker tracker;
     public float moveSpeedBonus = .2f;
+    // FireRate: throw this much more often (.2 = 20% more throws per second)
+    public float fireRateBonus = .2f;
 
     [Header("Dynamic")]
     public string pickedBuff = "";
 
     List<BuffInfo> offered = new List<BuffInfo>();
+    // each card can be rerolled once per pick
+    bool[] rerolled;
     Action onPicked;
     int highlighted = -1;
 
@@ -53,16 +59,45 @@ public class BuffPicker : MonoBehaviour
             offered.Add(pool[i]);
             pool.RemoveAt(i);
         }
+        rerolled = new bool[cards.Length];
         for (int i = 0; i < cards.Length; i++)
         {
             cards[i].gameObject.SetActive(i < offered.Count);
             if (i < offered.Count)
             {
                 cards[i].Show(offered[i]);
+                cards[i].SetRerollAvailable(CanReroll(i));
             }
         }
         Highlight(-1);
         screen.SetActive(true);
+    }
+
+    // a card can be rerolled once, and only if there's a buff that isn't already on show
+    bool CanReroll(int index)
+    {
+        return !rerolled[index] && buffs.Count > offered.Count;
+    }
+
+    // swaps one card for a random buff that isn't currently on any card
+    public void Reroll(int index)
+    {
+        if (!screen.activeSelf || index < 0 || index >= offered.Count || !CanReroll(index))
+        {
+            return;
+        }
+        List<BuffInfo> pool = new List<BuffInfo>();
+        foreach (BuffInfo buff in buffs)
+        {
+            if (!offered.Contains(buff))
+            {
+                pool.Add(buff);
+            }
+        }
+        offered[index] = pool[UnityEngine.Random.Range(0, pool.Count)];
+        rerolled[index] = true;
+        cards[index].Show(offered[index]);
+        cards[index].SetRerollAvailable(false);
     }
 
     void Update()
@@ -72,13 +107,14 @@ public class BuffPicker : MonoBehaviour
             return;
         }
         Keyboard k = Keyboard.current;
-        // number keys pick directly; arrows move the highlight and Enter picks it
+        // number keys pick directly; arrows move the highlight, Enter picks it and R rerolls it
         if (k.digit1Key.wasPressedThisFrame || k.numpad1Key.wasPressedThisFrame) Pick(0);
         else if (k.digit2Key.wasPressedThisFrame || k.numpad2Key.wasPressedThisFrame) Pick(1);
         else if (k.digit3Key.wasPressedThisFrame || k.numpad3Key.wasPressedThisFrame) Pick(2);
         else if (k.leftArrowKey.wasPressedThisFrame) Highlight(highlighted <= 0 ? offered.Count - 1 : highlighted - 1);
         else if (k.rightArrowKey.wasPressedThisFrame) Highlight((highlighted + 1) % offered.Count);
         else if ((k.enterKey.wasPressedThisFrame || k.numpadEnterKey.wasPressedThisFrame) && highlighted >= 0) Pick(highlighted);
+        else if (k.rKey.wasPressedThisFrame && highlighted >= 0) Reroll(highlighted);
     }
 
     public void Highlight(int index)
@@ -97,6 +133,7 @@ public class BuffPicker : MonoBehaviour
             return;
         }
         Apply(offered[index]);
+        tracker.Add(offered[index]);
         pickedBuff = offered[index].title;
         screen.SetActive(false);
         onPicked();
@@ -110,10 +147,13 @@ public class BuffPicker : MonoBehaviour
                 spaceship.speed *= 1 + moveSpeedBonus;
                 break;
             case BuffType.ExtraShot:
-                spaceship.shotsPerPress++;
+                spaceship.boxesPerShot++;
                 break;
             case BuffType.ExtraHeart:
                 spaceship.AddMaxHealth(1);
+                break;
+            case BuffType.FireRate:
+                spaceship.fireInterval /= 1 + fireRateBonus;
                 break;
         }
     }
