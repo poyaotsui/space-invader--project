@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public enum LootType { Lettuce, Patty }
+public enum LootType { Lettuce, Patty, Star }
 
 // a pickup that falls from a caught burger; touching it with the ship collects it
 public class LootDrop : MonoBehaviour
@@ -12,6 +12,9 @@ public class LootDrop : MonoBehaviour
     // degrees per second the pickup spins around
     public float spinSpeed = 120;
     public Transform visual;
+
+    // set by the loot system; the star needs it to open the buff cards
+    [HideInInspector] public GameScreens screens;
 
     void FixedUpdate()
     {
@@ -43,6 +46,14 @@ public class LootDrop : MonoBehaviour
                 break;
             case LootType.Patty:
                 ship.GiveShield();
+                break;
+            case LootType.Star:
+                // the buff cards can only open mid-run, never over another screen
+                if (!screens.IsPlaying)
+                {
+                    return;
+                }
+                screens.ChooseBuffThen(() => { });
                 break;
         }
         Destroy(gameObject);

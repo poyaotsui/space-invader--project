@@ -25,6 +25,9 @@ public class WaveSettings
     public int bossBulletsPerVolley = 5;
     public float bossFireInterval = 1.4f;
     public float bossLowHealthFireInterval = .7f;
+    // the Giant Burger's jump attack: average seconds between jumps (0 = never) and extra bounces after the landing
+    public float bossSlamInterval = 12f;
+    public int bossSlamBounces = 1;
 }
 
 public class WaveManager : MonoBehaviour

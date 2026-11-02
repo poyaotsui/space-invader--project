@@ -237,6 +237,16 @@ MonoBehaviour:
   lowHealthFireInterval: 0.7
   bulletsPerVolley: 5
   spread: 0.08
+  slamInterval: 12
+  slamBounces: 1
+  telegraphTime: 1
+  dropTime: 0.35
+  bounceHeight: 6
+  bounceTime: 0.6
+  bounceDrift: 5
+  trackSpeed: 12
+  riseTime: 0.9
+  markerSprite: {fileID: 21300000, guid: 829614fdc362d47938fa6011e8f5d8c9, type: 3}
   health: 0
   fight: {fileID: 0}
 --- !u!1 &3599660784433343374

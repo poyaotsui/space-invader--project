@@ -32,11 +32,24 @@ public class Spaceship : MonoBehaviour
     // after a shield absorbs a hit, you can't be hit again for this long
     public float shieldBreakGrace = .4f;
 
+    // Shift dashes the ship sideways in the direction it last moved, then has to recharge;
+    // nothing can hit you mid-dash
+    public float dashDistance = 6.5f;
+    public float dashTime = .12f;
+    public float dashCooldown = 2f;
+
     [Header("Dynamic")]
     public int health;
     // a shield soaks up the next hit completely; picking up another while holding one doesn't stack
     public bool hasShield { get; private set; }
     bool invincible = false;
+    // -1 left, 1 right: the way a dash goes when no direction is held
+    float facing = 1;
+    float lastDash = -999;
+    bool dashing = false;
+
+    // 0 right after a dash, 1 once it's ready again (the dash circle reads this)
+    public float DashCharge { get { return Mathf.Clamp01((Time.time - lastDash) / dashCooldown); } }
 
     //how far the ship's mesh sticks out to the left and right of its position
     float leftExtent;
@@ -77,7 +90,7 @@ public class Spaceship : MonoBehaviour
 
     public void TakeHit()
     {
-        if (invincible || health <= 0)
+        if (invincible || dashing || health <= 0)
         {
             return;
         }
@@ -148,12 +161,19 @@ public class Spaceship : MonoBehaviour
             Vector3 position = transform.position;
             position.x += speed * Time.deltaTime;
             transform.position = position;
+            facing = 1;
         }
         if (Keyboard.current.leftArrowKey.isPressed || Keyboard.current.aKey.isPressed)
         {
             Vector3 position = transform.position;
             position.x -= speed * Time.deltaTime;
             transform.position = position;
+            facing = -1;
+        }
+        // no dashing while the game is paused
+        if (Keyboard.current.shiftKey.wasPressedThisFrame && !dashing && DashCharge >= 1 && Time.timeScale > 0)
+        {
+            StartCoroutine(Dash(facing));
         }
         keepOnScreen();
         if (Time.time - lastShot >= fireInterval)
@@ -161,6 +181,21 @@ public class Spaceship : MonoBehaviour
             Fire();
         }
         characterRenderer.sprite = Time.time - lastShot < shoutTime ? shootingSprite : normalSprite;
+    }
+
+    IEnumerator Dash(float direction)
+    {
+        dashing = true;
+        lastDash = Time.time;
+        for (float t = 0; t < dashTime; t += Time.deltaTime)
+        {
+            Vector3 position = transform.position;
+            position.x += direction * dashDistance / dashTime * Time.deltaTime;
+            transform.position = position;
+            keepOnScreen();
+            yield return null;
+        }
+        dashing = false;
     }
 
     void Fire()

@@ -49,12 +49,17 @@ public class BossFight : MonoBehaviour
         // flies in from above the top of the screen, with this wave's health and firing
         GameObject boss = Instantiate(bossPrefab, new Vector3(0, 16, 0), Quaternion.identity);
         BossBurger bossBurger = boss.GetComponent<BossBurger>();
+        // the wave's settings, adjusted by the difficulty picked at the start
         WaveSettings wave = fleet.waves.CurrentWave;
+        DifficultyLevel level = fleet.difficulty.Current;
         bossBurger.fight = this;
-        bossBurger.maxHealth = wave.bossHealth;
-        bossBurger.bulletsPerVolley = wave.bossBulletsPerVolley;
-        bossBurger.fireInterval = wave.bossFireInterval;
-        bossBurger.lowHealthFireInterval = wave.bossLowHealthFireInterval;
+        bossBurger.maxHealth = Mathf.Max(1, Mathf.RoundToInt(wave.bossHealth * level.bossHealth));
+        bossBurger.bulletsPerVolley = Mathf.Max(1, wave.bossBulletsPerVolley + level.bossVolleyBonus);
+        bossBurger.fireInterval = wave.bossFireInterval * level.bossFireInterval;
+        bossBurger.lowHealthFireInterval = wave.bossLowHealthFireInterval * level.bossFireInterval;
+        // 0 means this wave's boss never jumps, whatever the difficulty
+        bossBurger.slamInterval = wave.bossSlamInterval * level.bossJumpInterval;
+        bossBurger.slamBounces = Mathf.Max(0, wave.bossSlamBounces + level.bossBounceBonus);
         bossHealthBar.SetActive(true);
         SetFill(1);
     }

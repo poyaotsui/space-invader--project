@@ -11,12 +11,15 @@ public class GameScreens : MonoBehaviour
     public TextMeshProUGUI endTitle;
     public TextMeshProUGUI endDetail;
     public Spaceship spaceship;
-    // offers a buff before every run
+    // asks for a difficulty, then offers a buff, before every run
+    public DifficultyPicker difficultyPicker;
     public BuffPicker buffPicker;
 
-    enum State { Waiting, ChoosingBuff, Playing, Over }
+    enum State { Waiting, ChoosingDifficulty, ChoosingBuff, Playing, Over }
     State state;
 
+    // true while a run is going, and not frozen behind the buff cards or an end screen
+    public bool IsPlaying { get { return state == State.Playing; } }
     // the settings menu can open on the title screen and during play, but not over the buff cards or end screen
     public bool CanPause { get { return state == State.Waiting || state == State.Playing; } }
     // set while the settings menu is open, so Space can't start or restart the game behind it
@@ -33,7 +36,7 @@ public class GameScreens : MonoBehaviour
         {
             restarting = false;
             startScreen.SetActive(false);
-            ChooseBuff();
+            ChooseDifficulty();
             return;
         }
         state = State.Waiting;
@@ -49,13 +52,20 @@ public class GameScreens : MonoBehaviour
         if (state == State.Waiting)
         {
             startScreen.SetActive(false);
-            ChooseBuff();
+            ChooseDifficulty();
         }
         else if (state == State.Over)
         {
             restarting = true;
             SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
         }
+    }
+
+    // the game stays frozen while the difficulty cards are up; picking one leads to the buff cards
+    void ChooseDifficulty()
+    {
+        state = State.ChoosingDifficulty;
+        difficultyPicker.Show(ChooseBuff);
     }
 
     // the game stays frozen while the buff cards are up, and starts once one is picked

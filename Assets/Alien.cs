@@ -8,6 +8,8 @@ public class Alien : MonoBehaviour
     public AlienFleet fleet;
 
     static float bulletSpawnRate = .002f;
+    // set by the difficulty: multiplies how often every burger shoots
+    public static float fireScale = 1;
     public float lastShot = 0;
     public static float shotCooldown = .1f;
 
@@ -41,7 +43,7 @@ public class Alien : MonoBehaviour
     {
         Vector3 position = transform.position;
 
-        if(UnityEngine.Random.value < bulletSpawnRate * fireRateMultiplier && Time.time - lastShot > shotCooldown){
+        if(UnityEngine.Random.value < bulletSpawnRate * fireRateMultiplier * fireScale &&Time.time - lastShot > shotCooldown){
             GameObject bullet = Instantiate<GameObject>(bulletPrefab);
             bullet.transform.position = position;
             lastShot = Time.time;

@@ -22,6 +22,9 @@ public class AlienFleet : MonoBehaviour
     // may drop a pickup when a burger is caught
     public LootSystem loot;
 
+    // what the picked difficulty changes (the boss reads it too)
+    public DifficultyManager difficulty;
+
     [Header("Dynamic")]
     public bool gameLost = false;
 
@@ -84,6 +87,17 @@ public class AlienFleet : MonoBehaviour
     float lastTurnTime;
     float nextSwoopTime;
 
+    // set by the difficulty: multiply how fast burgers move and the time between swoop dives
+    float speedScale = 1;
+    float swoopScale = 1;
+
+    public void SetDifficulty(float speed, float swoop)
+    {
+        speedScale = speed;
+        swoopScale = swoop;
+        nextSwoopTime = Time.fixedTime + swoopIntervalStart * swoopScale;
+    }
+
     // builds a fresh formation for a wave and resets the fleet's movement
     public void SpawnWave(WaveSettings wave)
     {
@@ -128,7 +142,7 @@ public class AlienFleet : MonoBehaviour
         //the game clock keeps counting across waves and restarts, so time everything from now
         lastTurnTime = Time.fixedTime;
         patternEndTime = Time.fixedTime + patternDuration;
-        nextSwoopTime = Time.fixedTime + swoopIntervalStart;
+        nextSwoopTime = Time.fixedTime + swoopIntervalStart * swoopScale;
         RefreshCounter();
     }
 
@@ -185,11 +199,12 @@ public class AlienFleet : MonoBehaviour
         {
             destroyed = (float)(startingAlienCount - aliens.Count) / (startingAlienCount - 1);
         }
-        float speed = direction * Mathf.Lerp(startSpeed, lastAlienSpeed, destroyed);
+        float stepSpeed = Mathf.Lerp(startSpeed, lastAlienSpeed, destroyed) * speedScale;
+        float speed = direction * stepSpeed;
 
         if (independentMovement)
         {
-            RoamBurgers(t, Mathf.Lerp(startSpeed, lastAlienSpeed, destroyed));
+            RoamBurgers(t, stepSpeed);
         }
         else
         {
@@ -200,7 +215,7 @@ public class AlienFleet : MonoBehaviour
         if (t >= nextSwoopTime && aliens.Count > 0)
         {
             StartSwoop(aliens[Random.Range(0, aliens.Count)], firingLine, t);
-            nextSwoopTime = t + Mathf.Lerp(swoopIntervalStart, swoopIntervalEnd, destroyed);
+            nextSwoopTime = t + Mathf.Lerp(swoopIntervalStart, swoopIntervalEnd, destroyed) * swoopScale;
         }
 
         //place every burger: its slot in the formation, plus the wave, plus any swoop
@@ -266,7 +281,7 @@ public class AlienFleet : MonoBehaviour
         }
         else
         {
-            formation.y += -startSpeed;
+            formation.y += -startSpeed * speedScale;
         }
 
         //change direction at the edges (by formation slot, so swooping burgers don't count)
