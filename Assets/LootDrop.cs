@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public enum LootType { Lettuce, Patty, Star }
+public enum LootType { Lettuce, Patty, Star, Laser }
 
 // a pickup that falls from a caught burger; touching it with the ship collects it
 public class LootDrop : MonoBehaviour
@@ -46,6 +46,9 @@ public class LootDrop : MonoBehaviour
                 break;
             case LootType.Patty:
                 ship.GiveShield();
+                break;
+            case LootType.Laser:
+                ship.GiveLaser();
                 break;
             case LootType.Star:
                 // the buff cards can only open mid-run, never over another screen

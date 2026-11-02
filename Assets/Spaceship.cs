@@ -21,6 +21,13 @@ public class Spaceship : MonoBehaviour
     public float invincibleTime = 1f;
     public HealthBar healthBar;
 
+    // the ray gun pickup swaps the boxes for rapid laser bolts for a few seconds
+    public GameObject laserPrefab;
+    public float laserDuration = 5f;
+    public float laserInterval = .15f;
+    // laser bolts sit closer together than boxes when several go out at once
+    public float laserSpacing = .6f;
+
     // the character shouts for a moment each time it throws
     public SpriteRenderer characterRenderer;
     public Sprite normalSprite;
@@ -47,6 +54,9 @@ public class Spaceship : MonoBehaviour
     float facing = 1;
     float lastDash = -999;
     bool dashing = false;
+    float laserUntil = -999;
+
+    public bool HasLaser { get { return Time.time < laserUntil; } }
 
     // 0 right after a dash, 1 once it's ready again (the dash circle reads this)
     public float DashCharge { get { return Mathf.Clamp01((Time.time - lastDash) / dashCooldown); } }
@@ -79,6 +89,12 @@ public class Spaceship : MonoBehaviour
     {
         hasShield = true;
         shieldBubble.SetActive(true);
+    }
+
+    // ray gun: lasers for a few seconds; picking up another restarts the timer
+    public void GiveLaser()
+    {
+        laserUntil = Time.time + laserDuration;
     }
 
     public void AddMaxHealth(int amount)
@@ -176,7 +192,7 @@ public class Spaceship : MonoBehaviour
             StartCoroutine(Dash(facing));
         }
         keepOnScreen();
-        if (Time.time - lastShot >= fireInterval)
+        if (Time.time - lastShot >= (HasLaser ? laserInterval : fireInterval))
         {
             Fire();
         }
@@ -200,12 +216,14 @@ public class Spaceship : MonoBehaviour
 
     void Fire()
     {
-        // several boxes go out side by side, centred on the ship
+        // several boxes (or laser bolts) go out side by side, centred on the ship
+        bool lasering = HasLaser;
+        float spacing = lasering ? laserSpacing : shotSpacing;
         for (int i = 0; i < boxesPerShot; i++)
         {
             Vector3 position = transform.position;
-            position.x += (i - (boxesPerShot - 1) / 2f) * shotSpacing;
-            GameObject bullet = Instantiate<GameObject>(dartPrefab);
+            position.x += (i - (boxesPerShot - 1) / 2f) * spacing;
+            GameObject bullet = Instantiate<GameObject>(lasering ? laserPrefab : dartPrefab);
             bullet.transform.position = position;
         }
         lastShot = Time.time;

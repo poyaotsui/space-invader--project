@@ -42,6 +42,7 @@ You throw takeout boxes automatically, so focus on moving and dodging.
 - Every 5th burger you catch may drop a pickup. Touch it to collect it:
   - **Lettuce:** restores a heart.
   - **Patty:** gives a shield bubble that absorbs the next hit.
+  - **Ray gun:** you fire rapid laser bolts instead of boxes for 5 seconds.
   - **Star (rare):** lets you pick an extra buff.
 - **Buffs:** Speedy Feet (move 20% faster), Double Order (+1 box per throw), Side Salad (+1 heart),
   Fast Hands (throw 20% faster).
@@ -94,10 +95,10 @@ Compared with the original starter code (`upstream/main`):
 | **Starting and ending screens** | Title screen; difficulty and buff selection; "You Win!" / "Game Over" end screen with the reason, wave and score; Space to play again. There's also a pause menu with a How to Play page. (`GameScreens`, `PauseMenu`) |
 | **Additional levels** | Two waves, each ending in a Giant Burger boss. Wave 2 uses a different formation (6×4 instead of 10×2), burgers that move independently instead of as one block, and a tougher boss. A "WAVE 2" banner appears in between. (`WaveManager`, `BossFight`, `BossBurger`) |
 | **Lives with a display** | 3 hearts shown on a health bar, brief invincibility (blinking) after each hit, and lettuce pickups to heal. (`Spaceship`, `HealthBar`) |
-| **Better graphics** | The ship is replaced by the player character, who shouts each time they throw. The aliens are burgers and the darts are takeout boxes with hinged lids. |
+| **Better graphics** | The ship is replaced by the player character, who shouts each time they throw. The aliens are pixel-art burgers with animated faces: they blink, bob, and open their mouths when they fire, and the Giant Burger winces when hit and turns angry below half health (`BurgerFace`). The darts are takeout boxes with hinged lids, and the bullets, pickups and shield are pixel art too. |
 | **Collision animations** | A box that catches a burger snaps its lid shut, floats up and shrinks away; the ship blinks when hit; the boss squashes and the camera shakes when it lands; the boss shrinks away when defeated. |
 | **Shields** | Patty pickups put a shield bubble around the ship that absorbs one hit. |
 
 ### Other additions
 Difficulty selection, a boss fight, burger dives and movement patterns, a dash with a recharge
-indicator, loot drops, a buff/upgrade system with rerolls, scoring, and a pause menu.
+indicator, loot drops (including a ray gun that fires lasers for 5 seconds), a buff/upgrade system with rerolls, scoring, and a pause menu.

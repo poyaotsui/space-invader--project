@@ -7,6 +7,9 @@ public class Dart : MonoBehaviour
 
     // the takeout box lid, hinged at the back; open while flying, shut (no rotation) once it catches a burger
     public Transform lidHinge;
+    // a laser bolt from the ray gun pickup: faster, and it vanishes on a hit instead of carrying the burger off
+    public bool laser = false;
+    public float laserSpeedScale = 2f;
 
     // once a box has caught something it can't catch anything else
     public bool captured { get; private set; }
@@ -29,7 +32,7 @@ public class Dart : MonoBehaviour
             return;
         }
 
-        position.y += speed;
+        position.y += laser ? speed * laserSpeedScale : speed;
         transform.position = position;
         if(position.y > 10)
         {
@@ -40,6 +43,11 @@ public class Dart : MonoBehaviour
     public void Capture()
     {
         captured = true;
+        if (laser)
+        {
+            Destroy(gameObject);
+            return;
+        }
         foreach (Collider c in GetComponentsInChildren<Collider>())
         {
             c.enabled = false;

@@ -1,13 +1,15 @@
 using UnityEngine;
 
 // every few burgers you catch, there's a chance one drops a pickup:
-// lettuce heals, a patty gives a shield, and a star lets you pick a buff
+// lettuce heals, a patty gives a shield, a ray gun fires lasers for a while,
+// and a star lets you pick a buff
 public class LootSystem : MonoBehaviour
 {
     [Header("Inscribed")]
     public GameObject lettucePrefab;
     public GameObject pattyPrefab;
     public GameObject starPrefab;
+    public GameObject laserPrefab;
     // the star opens the buff cards, so the drop needs to know about the game's screens
     public GameScreens screens;
     // a drop is rolled on every Nth burger caught
@@ -16,6 +18,8 @@ public class LootSystem : MonoBehaviour
     [Range(0, 1)] public float dropChance = .6f;
     // of the drops, how many are stars (the rare one)
     [Range(0, 1)] public float starShare = .25f;
+    // of the drops, how many are ray guns
+    [Range(0, 1)] public float laserShare = .2f;
     // of the rest, how many are lettuce (the others are patties)
     [Range(0, 1)] public float lettuceShare = .5f;
 
@@ -35,9 +39,14 @@ public class LootSystem : MonoBehaviour
     public GameObject Drop(Vector3 position)
     {
         GameObject prefab;
-        if (Random.value < starShare)
+        float roll = Random.value;
+        if (roll < starShare)
         {
             prefab = starPrefab;
+        }
+        else if (roll < starShare + laserShare)
+        {
+            prefab = laserPrefab;
         }
         else
         {

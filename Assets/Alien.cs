@@ -18,6 +18,7 @@ public class Alien : MonoBehaviour
 
     // OnCollisionEnter can fire once per collider touched, so only count the first hit
     bool hit = false;
+    BurgerFace face;
 
     // set by the fleet: this burger's place in the formation, and its current dive
     [HideInInspector] public Vector3 slot;
@@ -37,6 +38,7 @@ public class Alien : MonoBehaviour
     void Awake()
     {
         body = GetComponent<Collider>();
+        face = GetComponentInChildren<BurgerFace>();
     }
 
     void FixedUpdate()
@@ -47,6 +49,10 @@ public class Alien : MonoBehaviour
             GameObject bullet = Instantiate<GameObject>(bulletPrefab);
             bullet.transform.position = position;
             lastShot = Time.time;
+            if (face != null)
+            {
+                face.Chomp();
+            }
         }
     }
 

@@ -58,12 +58,14 @@ public class BossBurger : MonoBehaviour
     // the red mark on the floor showing where the boss is about to land
     SpriteRenderer marker;
     Vector3 cameraStart;
+    BurgerFace face;
 
     void Start()
     {
         health = maxHealth;
         baseScale = transform.localScale;
         body = GetComponent<BoxCollider>();
+        face = GetComponentInChildren<BurgerFace>();
         cameraStart = Camera.main.transform.position;
         GameObject markerGO = new GameObject("SlamMarker");
         marker = markerGO.AddComponent<SpriteRenderer>();
@@ -282,6 +284,10 @@ public class BossBurger : MonoBehaviour
     void FireVolley()
     {
         int count = health <= maxHealth / 2 ? bulletsPerVolley + 2 : bulletsPerVolley;
+        if (face != null)
+        {
+            face.Chomp();
+        }
         for (int i = 0; i < count; i++)
         {
             // -1 for the leftmost bullet, 1 for the rightmost
@@ -307,6 +313,12 @@ public class BossBurger : MonoBehaviour
         }
         health--;
         fight.BossHit(health, maxHealth);
+        if (face != null)
+        {
+            face.mad = health <= maxHealth / 2;
+            // beaten: keep wincing while it spins away
+            face.Ouch(health <= 0 ? 10f : .35f);
+        }
         if (health <= 0)
         {
             dead = true;

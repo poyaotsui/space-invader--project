@@ -260,6 +260,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4799640990249555163}
   - component: {fileID: 1896525907820517774}
+  - component: {fileID: 8029067126993504329}
   m_Layer: 0
   m_Name: PixelBurger
   m_TagString: Untagged
@@ -342,6 +343,27 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_SpriteSortPoint: 0
   m_BlendShapeWeights: []
+--- !u!114 &8029067126993504329
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3176425980542270627}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bee1c44d69d2a497799c52fe7362f1af, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::BurgerFace
+  idle: {fileID: 21300000, guid: 97214603236fa471f99b3b545ee23c29, type: 3}
+  blink: {fileID: 21300000, guid: a7ef27a1014ec405fa61c0557607953c, type: 3}
+  chomp: {fileID: 21300000, guid: a7b8b6ebd820a4e4c8054061a0254fff, type: 3}
+  ouch: {fileID: 21300000, guid: 723be8713b89f427eb490b4f7aee5ac7, type: 3}
+  angry: {fileID: 21300000, guid: 395d0578373d84c64bfe3056780d970f, type: 3}
+  angryChomp: {fileID: 21300000, guid: 2eb079df6bd5645b8b34864563b6150c, type: 3}
+  bobAmount: 0.04
+  bobSpeed: 4
+  mad: 0
 --- !u!1 &3599660784433343374
 GameObject:
   m_ObjectHideFlags: 0

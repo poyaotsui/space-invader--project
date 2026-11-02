@@ -18413,10 +18413,12 @@ MonoBehaviour:
   lettucePrefab: {fileID: 8368839953941121063, guid: dc9ed797fd3d4471bb6237bcbe06b038, type: 3}
   pattyPrefab: {fileID: 2037098609846652966, guid: 3b196108017fb451cb0a2e6e9ac8c8c0, type: 3}
   starPrefab: {fileID: 5632935983519322026, guid: 03ba2078490c24895876bc44f1784114, type: 3}
+  laserPrefab: {fileID: 8368839953941121063, guid: a6b1262d5e3a847f5a880cd9d74bd1a2, type: 3}
   screens: {fileID: 2080831155}
   everyBurgers: 5
   dropChance: 0.6
   starShare: 0.25
+  laserShare: 0.2
   lettuceShare: 0.5
   burgersCaught: 0
 --- !u!114 &485069175
